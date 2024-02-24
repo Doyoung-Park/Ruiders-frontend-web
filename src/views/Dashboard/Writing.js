@@ -7,6 +7,9 @@ import {
   Icon,
   Spacer,
   Text,
+  FormControl,
+  FormLabel,
+  Input,
   useColorMode,
   useColorModeValue,
 } from "@chakra-ui/react";
@@ -49,15 +52,19 @@ function Writing() {
   const borderColor = useColorModeValue("#dee2e6", "transparent");
   const { colorMode } = useColorMode();
 
+  const [myTitle, setMyTitle] = useState('');
   const [myText, setMyText] = useState('');
-  const [file, setMyFile] = useState();
+  const [file, setMyFile] = useState(null);
 
   const handleFormSubmit = async () => {
     try {
       console.log("등록 버튼이 눌림");
       console.log("입력한 텍스트: ", myText.getInstance().getMarkdown());
       console.log("입력한 이미지: ", file);
+
       const formData = new FormData();
+      console.log('title:', myTitle);
+      formData.append('title',myTitle);
       formData.append('text', myText);
       // 서버 URL을 지정합니다. 여기서는 예시로 'your-server-url'로 표시했습니다.
       const serverUrl = process.env.SERVER_IP
@@ -84,24 +91,11 @@ function Writing() {
 
   const onUploadImage = async (blob, callback) => {
     console.log("@@: ", blob);
-
     setMyFile(blob);
-
-    // return false;
-
-    // fetchUploadImage(blob).then((path) => {
-    //   console.log(path);
-    //   callback(path, blob.name);
-    // });
-
     console.log("Test", blob);
-    callback(path, blob.name);
-    // return false;
-    // console.log("fetchUploadImageResult: ", fetchUploadImageResult)
+    callback(blob, blob.name);
 
   };
-
-
 
   return (
     <Flex direction='column' pt={{ base: "120px", md: "75px" }}>
@@ -150,7 +144,6 @@ function Writing() {
 
       <Grid templateColumns={{ sm: "1fr", lg: "2fr 1.2fr" }} templateRows='1fr'>
         <Box>
-
           {/* 글 쓰기 텍스트창 시작 */}
           <Card p='16px' mt='24px'>
             <CardHeader>
@@ -159,19 +152,55 @@ function Writing() {
                 align='center'
                 minHeight='60px'
                 w='100%'>
-                <Text fontSize='lg' color={textColor} fontWeight='bold'>
-                  글 쓰기
-                </Text>
+              
+            <FormControl>
+              <FormLabel fontSize='lg' color={textColor} fontWeight='bold'>
+                글 쓰기
+              </FormLabel>
+              <Input
+                variant='auth'
+                fontSize='sm'
+                ms='4px'
+                type='text'
+                placeholder='제목을 입력해주세요'
+                mb='24px'
+                size='lg'
+                onChange={(event) => {
+                  setMyTitle(event.target.value)
+                }}
+              />
+          </FormControl>
               </Flex>
             </CardHeader>
+            
             <CardBody>
-              <Flex
+            <Editor
+                    placeholder="내용을 입력해주세요."
+                    previewStyle="vertical"
+                    height="600px"
+                    width='100%'
+                    initialEditType="markdown"
+                    // initialEditType="wysiwyg"
+                    useCommandShortcut={true}
+                    ref={(editor) => {
+                      // Editor 컴포넌트의 인스턴스를 참조합니다.
+                      setMyText(editor);
+                      // onUploadImage
+                    }}
+                    hooks={{
+                      addImageBlobHook: onUploadImage,
+                    }}
+                  />
+
+              {/* <Flex
                 direction={{ sm: "column", md: "row" }}
-                align='center'
+                align='left'
                 w='100%'
-                justify='center'
+                justify='left'
                 py='1rem'>
-                <Flex
+        */}
+
+                {/* <Flex
                   p='1rem'
                   bg={colorMode === "dark" ? "navy.900" : "transparent"}
                   borderRadius='15px'
@@ -181,18 +210,6 @@ function Writing() {
                   align='center'
                   mb={{ sm: "24px", md: "0px" }}
                   me={{ sm: "0px", md: "24px" }}>
-
-                  {/* <input
-                    type="text"
-                    placeholder="Enter text here"
-                    style={{
-                      color: 'gray.400',
-                      fontSize: 'md',
-                      fontWeight: 'semibold'
-                    }}
-                    value={myText}
-                    onChange={handleMyTextChange}
-                  /> */}
 
                   <Editor
                     initialValue="내용을 입력해주세요."
@@ -204,16 +221,18 @@ function Writing() {
                     ref={(editor) => {
                       // Editor 컴포넌트의 인스턴스를 참조합니다.
                       setMyText(editor);
-                      onUploadImage
+                      // onUploadImage
                     }}
                     hooks={{
                       addImageBlobHook: onUploadImage,
                     }}
                   />
-                </Flex>
-              </Flex>
+                  
+                </Flex> */}
 
-              <Spacer />
+              {/* </Flex> */}
+
+              
               <Button variant={colorMode === "dark" ? "primary" : "dark"}
                 onClick={handleFormSubmit}>
                 등록
