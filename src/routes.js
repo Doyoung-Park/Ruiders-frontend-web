@@ -29,7 +29,7 @@ var dashRoutes = [
   },
   {
     path: "/text",
-    name: "글 쓰기",
+    name: "글쓰기",
     icon: <DocumentIcon color='inherit' />,
     component: Writing,
     layout: "/admin",

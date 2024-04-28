@@ -58,19 +58,28 @@ function Writing() {
 
   const handleFormSubmit = async () => {
     try {
-      console.log("등록 버튼이 눌림");
-      console.log("입력한 텍스트: ", myText.getInstance().getMarkdown());
+
+      const title = myTitle;
+      const content = myText.getInstance().getMarkdown();
+      
+      console.log("제목: ",title);
+      console.log("입력한 텍스트: ", content);
       console.log("입력한 이미지: ", file);
 
-      const formData = new FormData();
-      console.log('title:', myTitle);
-      formData.append('title',myTitle);
-      formData.append('text', myText);
-      // 서버 URL을 지정합니다. 여기서는 예시로 'your-server-url'로 표시했습니다.
-      const serverUrl = process.env.SERVER_IP
+      const request = new FormData()
+      
+      const text = JSON.stringify({title: title, content: content});
+      const jsonData = new Blob([text], {type: "application/json"});
 
-      // Axios를 사용하여 POST 요청을 보냅니다.
-      await axios.post(serverUrl, formData);
+      request.append('text', jsonData);
+      request.append('image', file);
+
+      await axios.post("http://localhost:8080/writing/new",
+       request, {
+        headers: {
+          "Content-Type" : "multipart/form-data"
+        }
+      });
 
       // 요청이 성공하면 사용자에게 성공 메시지를 표시하거나 다른 작업을 수행할 수 있습니다.
       alert('등록되었습니다.');
@@ -92,7 +101,7 @@ function Writing() {
   const onUploadImage = async (blob, callback) => {
     console.log("@@: ", blob);
     setMyFile(blob);
-    console.log("Test", blob);
+    console.log("Test", blob); 
     callback(blob, blob.name);
 
   };
@@ -155,7 +164,7 @@ function Writing() {
               
             <FormControl>
               <FormLabel fontSize='lg' color={textColor} fontWeight='bold'>
-                글 쓰기
+                글쓰기
               </FormLabel>
               <Input
                 variant='auth'
@@ -191,48 +200,6 @@ function Writing() {
                       addImageBlobHook: onUploadImage,
                     }}
                   />
-
-              {/* <Flex
-                direction={{ sm: "column", md: "row" }}
-                align='left'
-                w='100%'
-                justify='left'
-                py='1rem'>
-        */}
-
-                {/* <Flex
-                  p='1rem'
-                  bg={colorMode === "dark" ? "navy.900" : "transparent"}
-                  borderRadius='15px'
-                  width='100%'
-                  border='1px solid'
-                  borderColor={borderColor}
-                  align='center'
-                  mb={{ sm: "24px", md: "0px" }}
-                  me={{ sm: "0px", md: "24px" }}>
-
-                  <Editor
-                    initialValue="내용을 입력해주세요."
-                    previewStyle="vertical"
-                    height="600px"
-                    // initialEditType="markdown"
-                    initialEditType="wysiwyg"
-                    useCommandShortcut={true}
-                    ref={(editor) => {
-                      // Editor 컴포넌트의 인스턴스를 참조합니다.
-                      setMyText(editor);
-                      // onUploadImage
-                    }}
-                    hooks={{
-                      addImageBlobHook: onUploadImage,
-                    }}
-                  />
-                  
-                </Flex> */}
-
-              {/* </Flex> */}
-
-              
               <Button variant={colorMode === "dark" ? "primary" : "dark"}
                 onClick={handleFormSubmit}>
                 등록
